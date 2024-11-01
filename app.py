@@ -12,18 +12,21 @@ app = Flask(__name__)
 def generate_plots(N, mu, sigma2, S):
 
     # STEP 1
+    
     # TODO 1: Generate a random dataset X of size N with values between 0 and 1
     # and a random dataset Y with normal additive error (mean mu, variance sigma^2).
+    
     # Hint: Use numpy's random's functions to generate values for X and Y
-    X = None  # Replace with code to generate random values for X
-    Y = None  # Replace with code to generate random values for Y with specified mean and variance
+    X = np.random.uniform(0, 1, N)
+    Y = np.random.normal(mu, np.sqrt(sigma2), N)
 
     # TODO 2: Fit a linear regression model to X and Y
     # Hint: Use Scikit Learn
-    model = None
-    None  # Replace with code to fit the model
-    slope = None  # Replace with code to extract slope from the fitted model
-    intercept = None  # Replace with code to extract intercept from the fitted model
+    X_reshaped = X.reshape(-1, 1)
+    model = LinearRegression()
+    model.fit(X_reshaped, Y)
+    slope = model.coef_[0]
+    intercept = model.intercept_
 
     # TODO 3: Generate a scatter plot of (X, Y) with the fitted regression line
     # Hint: Use Matplotlib
@@ -32,8 +35,17 @@ def generate_plots(N, mu, sigma2, S):
     # Finally, save the plot to "static/plot1.png" using plt.savefig()
     
     plot1_path = "static/plot1.png"
-    # Replace the above TODO 3 block with code to generate and save the plot
-
+    plt.figure()
+    plt.scatter(X, Y, color='blue', label='Data points')
+    X_line = np.linspace(min(X), max(X), 100)
+    Y_line = model.predict(X_line.reshape(-1, 1))
+    plt.plot(X_line, Y_line, color='red', label='Fitted line')
+    plt.xlabel('X')
+    plt.ylabel('Y')
+    plt.title(f'Linear Fit: Y = {slope:.2f}X + {intercept:.2f}')
+    plt.legend()
+    plt.savefig(plot1_path)
+    plt.close()
     
     # Step 2: Run S simulations and create histograms of slopes and intercepts
 
@@ -46,18 +58,18 @@ def generate_plots(N, mu, sigma2, S):
     # Hint: For each iteration, create random X and Y values using the provided parameters
     for _ in range(S):
         # TODO: Generate random X values with size N between 0 and 1
-        X_sim = None  # Replace with code to generate X values
+        X_sim = np.random.uniform(0, 1, N)
 
         # TODO: Generate Y values with normal additive error (mean mu, variance sigma^2)
-        Y_sim = None  # Replace with code to generate Y values
+        Y_sim = np.random.normal(mu, np.sqrt(sigma2), N)
 
         # TODO: Fit a linear regression model to X_sim and Y_sim
-        sim_model = None  # Initialize model
-        None  # Replace with code to fit model
+        sim_model = LinearRegression()
+        sim_model.fit(X_sim.reshape(-1, 1), Y_sim)
 
         # TODO: Append the slope and intercept of the model to slopes and intercepts lists
-        slopes.append(None)  # Replace None with code to append slope
-        intercepts.append(None)  # Replace None with code to append intercept
+        slopes.append(sim_model.coef_[0])
+        intercepts.append(sim_model.intercept_)
 
     # Plot histograms of slopes and intercepts
     plt.figure(figsize=(10, 5))
